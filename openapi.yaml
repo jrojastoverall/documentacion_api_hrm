@@ -2,38 +2,15 @@ swagger: '2.0'
 schemes:
   - http
   - https
-host: example.com
-basePath: /api/v1
+host: app.overall.pe
+basePath: /UserRestApi/api/v1
 info:
   description: |
-    This is an **example** API to demonstrate features of OpenAPI specification
-    # Introduction
-    This specification is intended to to be a good starting point for describing your API in 
-    [OpenAPI/Swagger format](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md).
-    It also demonstrates features of [generator-openapi-repo](https://github.com/Rebilly/generator-openapi-repo) tool and 
-    [ReDoc](https://github.com/Rebilly/ReDoc) documentation engine. So beyond the standard OpenAPI syntax we use a few 
-    [vendor extensions](https://github.com/Rebilly/ReDoc/blob/master/docs/redoc-vendor-extensions.md).
-
-    # OpenAPI Specification
-    The goal of The OpenAPI Specification is to define a standard, language-agnostic interface to REST APIs which
-    allows both humans and computers to discover and understand the capabilities of the service without access to source
-    code, documentation, or through network traffic inspection. When properly defined via OpenAPI, a consumer can 
-    understand and interact with the remote service with a minimal amount of implementation logic. Similar to what
-    interfaces have done for lower-level programming, OpenAPI removes the guesswork in calling the service.
+    Esta api ofrece servicios de integración para clientes internos de la organización
   version: 1.0.0
-  title: Example.com
-  termsOfService: 'https://example.com/terms/'
-  contact:
-    email: contact@example.com
-    url: 'http://example.com/contact'
-  license:
-    name: Apache 2.0
-    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+  title: Overall HRM API
   x-logo:
-    url: 'https://apis.guru/openapi-template/logo.png'
-externalDocs:
-  description: Find out how to create Github repo for your OpenAPI spec.
-  url: 'https://github.com/Rebilly/generator-openapi-repo'
+    url: 'https://www.overall.pe/img/overall_blue.svg'
 produces:
   - application/json
   - application/xml
@@ -42,98 +19,11 @@ consumes:
   - application/json
   - application/xml
 tags:
-  - name: Echo
-    description: Example echo operations
-  - name: User
-    description: Operations about user
-securityDefinitions:
-  main_auth:
-    type: oauth2
-    authorizationUrl: 'http://example.com/api/oauth/dialog'
-    flow: implicit
-    scopes:
-      'read:users': read users info
-      'write:users': modify or remove users
-  api_key:
-    type: apiKey
-    in: header
-    name: api_key
-  basic_auth:
-    type: basic
+  - name: CTS
+    description: Listado de pagos cts
+  - name: Adelantos y préstamos
+    description: Listado de adelantos y prestamos
 paths:
-  '/users/{username}':
-    parameters:
-      - name: pretty_print
-        in: query
-        description: Pretty print response
-        type: boolean
-    get:
-      tags:
-        - User
-      summary: Get user by user name
-      description: |
-        Some description of the operation. 
-        You can use `markdown` here.
-      operationId: getUserByName
-      parameters:
-        - name: username
-          in: path
-          description: The name that needs to be fetched
-          required: true
-          type: string
-        - name: with_email
-          in: query
-          description: Filter users without email
-          type: boolean
-      security:
-        - main_auth:
-            - 'read:users'
-        - api_key: []
-      produces:
-        - application/json
-      responses:
-        '200':
-          description: Success
-          schema:
-            $ref: '#/definitions/User'
-          examples:
-            application/json:
-              username: user1
-              email: user@example.com
-        '403':
-          description: Forbidden
-        '404':
-          description: User not found
-    put:
-      tags:
-        - User
-      summary: Updated user
-      description: This can only be done by the logged in user.
-      operationId: updateUser
-      produces:
-        - application/json
-      parameters:
-        - name: username
-          in: path
-          description: The name that needs to be updated
-          required: true
-          type: string
-        - in: body
-          name: body
-          description: Updated user object
-          required: true
-          schema:
-            $ref: '#/definitions/User'
-      security:
-        - main_auth:
-            - 'write:users'
-      responses:
-        '200':
-          description: OK
-        '400':
-          description: Invalid user supplied
-        '404':
-          description: User not found
   /echo:
     post:
       tags:
@@ -149,8 +39,6 @@ paths:
           schema:
             type: string
             example: Hello world!
-      security:
-        - api_key: []
       responses:
         '200':
           description: OK
@@ -191,29 +79,282 @@ paths:
             } catch (UnprocessableEntityException $e) {
                 var_dump($e->getErrors());
             }
+  /cts:
+    post:
+      tags:
+        - CTS
+      parameters:
+        - name: request
+          in: body
+          schema:
+            type: object
+            properties:
+              anio_periodo:
+                description: periodo en formato yyyy
+                type: string
+                minLength: 4
+                example: 9999
+              codigo_trab:
+                description: código del trabajador
+                type: string
+                minLength: 1
+                example: 000680
+              no_cia:
+                description: código de compañía
+                type: string
+                minLength: 1
+                example: 2
+              dni:
+                description: documento de identidad
+                type: string
+                minLength: 8
+                example: 20401821
+      responses:
+        '200':
+          description: Respuesta de éxito
+          schema:
+            type: object
+            properties:
+              error:
+                type: integer
+                example: 0
+              message:
+                type: string
+                example: ok
+              data:
+                type: array
+                items:
+                  $ref: '#/definitions/CtsResponse'
+  /advance_loan:
+    post:
+      tags:
+        - Adelantos y préstamos
+      parameters:
+        - name: request
+          in: body
+          schema:
+            type: object
+            properties:
+              no_cia:
+                description: código de compañía
+                type: string
+                minLength: 1
+                example: 2
+              estado:
+                description: estado
+                type: string
+                minLength: 4
+                example: 2
+              dni:
+                description: documento de identidad
+                type: string
+                minLength: 8
+                example: 20401821
+      responses:
+        '200':
+          description: Respuesta de éxito
+          schema:
+            type: object
+            properties:
+              error:
+                type: integer
+                example: 0
+              message:
+                type: string
+                example: ok
+              data:
+                type: array
+                items:
+                  $ref: '#/definitions/AdePreResponse'
 definitions:
-  Email:
-    description: User email address
-    type: string
-    format: email
-    example: john.smith@example.com
-  User:
+  CtsResponse:
     type: object
     properties:
-      username:
-        description: User supplied username
+      no_cia:
+        description: código de compañía
+        type: string
+        minLength: 2
+        example: 2
+      consultora:
+        description: nombre de la consultora
+        type: string
+        minLength: 1
+        example: OVERALL STRATEGY S.A.C.
+      desc_cliente:
+        description: nombre del cliente
+        type: string
+        minLength: 1
+        example: OVERALL STRATEGY S.A.C.
+      anio_periodo:
+        description: periodo en formato yyyy
         type: string
         minLength: 4
-        example: John78
-      firstName:
-        description: User first name
+        example: 2019
+      mes_letras:
+        description: descripción del mes
         type: string
         minLength: 1
-        example: John
-      lastName:
-        description: User last name
+        example: MAYO
+      cod_operacion:
+        description: código de operación
         type: string
         minLength: 1
-        example: Smith
-      email:
-        $ref: '#/definitions/Email'
+        example: 00914
+      sec_trab_ped:
+        description: sec trab ped
+        type: string
+        minLength: 1
+        example: 584
+      id_periodo:
+        description: código de periodo en formato yyyyMM
+        type: string
+        minLength: 1
+        example: 201905
+      valor_concepto:
+        description: código de periodo en formato yyyyMM
+        type: string
+        minLength: 1
+        example: 2000
+      nombre_documento:
+        description: nombre del documento
+        type: string
+        minLength: 1
+        example: 'https://s3.amazonaws.com/overall-files/Boletas/02/5329b9a3104bd70f6173981f8d5ce4543bb4w22b1be2abfd1daff4d09f1f1d1a_FE.pdf'
+  AdePreResponse:
+    type: object
+    properties:
+      no_cia:
+        description: código de compañía
+        type: string
+        minLength: 2
+        example: 2
+      cod_operacion:
+        description: código de operación
+        type: string
+        minLength: 1
+        example: 00914
+      nom_cia:
+        description: nombre de compañía
+        type: string
+        minLength: 2
+        example: OVERALL STRATEGY S.A.C.
+      sec_trab_ped:
+        description: sec trab ped
+        type: string
+        minLength: 1
+        example: 584
+      cod_solicitud:
+        description: código de solicitud
+        type: string
+        minLength: 1
+        example: 1
+      cod_concepto:
+        description: código de concepto
+        type: string
+        minLength: 1
+        example: B75
+      cod_proceso:
+        description: código de proceso
+        type: string
+        minLength: 1
+        example: null
+      des_concepto:
+        description: descripción de concepto
+        type: string
+        minLength: 1
+        example: DESCUENTO COMEDOR
+      cod_tipo_prestamo:
+        description: tipo de préstamo
+        type: string
+        minLength: 1
+        example: C
+      desc_tipo_prestamo:
+        description: descripción de préstamo
+        type: string
+        minLength: 1
+        example: Consumo
+      fecha_solicitud:
+        description: fecha de solicitud
+        type: string
+        minLength: 1
+        example: 09/09/2019
+      moneda_solicitud:
+        description: descripción de moneda
+        type: string
+        minLength: 1
+        example: SOL
+      monto_solicitud:
+        description: monto de solicitud
+        type: string
+        minLength: 1
+        example: 4.8
+      fec_ini_dscto:
+        description: fecha inicial de descuento
+        type: string
+        minLength: 1
+        example: '09/09/2019 00:00:00'
+      nro_cuotas:
+        description: número de cuotas
+        type: string
+        minLength: 1
+        example: 1
+      ind_intereses:
+        description: indicador de interés
+        type: string
+        minLength: 1
+        example: 'N'
+      porc_interes:
+        description: porcentaje de interés
+        type: string
+        minLength: 1
+        example: null
+      ind_remuneracion:
+        description: indicador de remuneración
+        type: string
+        minLength: 1
+        example: 1
+      ind_quincena:
+        description: indicador de quincena
+        type: string
+        minLength: 1
+        example: 0
+      ind_vacaciones:
+        description: indicador de vacaciones
+        type: string
+        minLength: 1
+        example: 0
+      ind_gratificacion:
+        description: indicador de gratificación
+        type: string
+        minLength: 1
+        example: 0
+      monto_descontado:
+        description: monto descontado
+        type: string
+        minLength: 1
+        example: 0
+      saldo:
+        description: saldo
+        type: string
+        minLength: 1
+        example: '4,80'
+      aprobado_por:
+        description: usuario de aprobación
+        type: string
+        minLength: 1
+        example: ADMINISTRADOR
+      feca_aprob:
+        description: fecha de aprobación
+        type: string
+        minLength: 1
+        example: '9/09/2019 00:00:00'
+      autorizado:
+        description: flag de autorización
+        type: string
+        minLength: 1
+        example: S
+      estado:
+        description: estado
+        type: string
+        minLength: 1
+        example: PENDIENTE
