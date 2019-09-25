@@ -47,10 +47,20 @@ consumes:
 # A list of tags used by the specification with additional metadata.
 # The order of the tags can be used to reflect on their order by the parsing tools.
 tags:
+  - name: Boletas
+    description: Listado de boletas por trabajador
   - name: CTS
     description: Listado de pagos cts
   - name: Adelantos y préstamos
     description: Listado de adelantos y prestamos
+  - name: Boletas no confirmadas
+    description: Boletas no confirmadas
+  - name: Confirmación de boletas
+    description: Confirmación de boletas
+  - name: Pagos recientes
+    description: Pagos recientes por trabajador
+  - name: Beneficios
+    description: Listado de beneficios
 
 # Holds the relative paths to the individual endpoints. The path is appended to the
 # basePath in order to construct the full URL. 
@@ -87,7 +97,55 @@ paths:
               type: string
               format: date-time
               description: date in UTC when token expires
-  '/cts':
+  '/reports/boletas_all':
+      post:
+        tags:
+          - Boletas
+        #summary: Listado de pagos cts
+        #description: Listado de pagos cts
+        parameters:
+          - name: request
+            in: body
+            schema:
+              type: object
+              properties:
+                anio_periodo:
+                  description: periodo en formato yyyy
+                  type: string
+                  minLength: 4
+                  example: 9999
+                dni:
+                  description: documento de identidad
+                  type: string
+                  minLength: 8
+                  example: 12345678
+                no_cia:
+                  description: código de compañía
+                  type: string
+                  minLength: 1
+                  example: 02
+                codigo_trab:
+                  description: código del trabajador
+                  type: string
+                  minLength: 1
+                  example: 123456
+        responses:
+          '200':
+            description: 'Respuesta de éxito'
+            schema:
+              type: object
+              properties:
+                error:
+                  type: integer
+                  example: 0
+                message:
+                  type: string
+                  example: ok
+                data:
+                  type: array
+                  items: 
+                    $ref: '#/definitions/BoletaResponse'
+  '/reports/cts':
       post:
         tags:
           - CTS
@@ -108,7 +166,7 @@ paths:
                   description: código del trabajador
                   type: string
                   minLength: 1
-                  example: 000680
+                  example: 123456
                 no_cia:
                   description: código de compañía
                   type: string
@@ -118,7 +176,7 @@ paths:
                   description: documento de identidad
                   type: string
                   minLength: 8
-                  example: 20401821
+                  example: 12345678
         responses:
           '200':
             description: 'Respuesta de éxito'
@@ -135,8 +193,7 @@ paths:
                   type: array
                   items: 
                     $ref: '#/definitions/CtsResponse'
-            
-  '/advance_loan':
+  '/reports/advance_loan':
       post:
         tags:
           - Adelantos y préstamos
@@ -179,9 +236,250 @@ paths:
                   type: array
                   items: 
                     $ref: '#/definitions/AdePreResponse'
+  '/pay/unconfirmed':
+      post:
+        tags:
+          - Boletas no confirmadas
+        #summary: Listado de pagos cts
+        #description: Listado de pagos cts
+        parameters:
+          - name: request
+            in: body
+            schema:
+              type: object
+              properties:
+                no_cia:
+                  description: código de compañía
+                  type: string
+                  minLength: 1
+                  example: 02
+                codigo_trab:
+                  description: estado
+                  type: string
+                  minLength: 1
+                  example: 0134051
+        responses:
+          '200':
+            description: 'Respuesta de éxito'
+            schema:
+              type: object
+              properties:
+                error:
+                  type: integer
+                  example: 0
+                message:
+                  type: string
+                  example: ok
+                data:
+                  type: array
+                  items: 
+                    $ref: '#/definitions/NoConfirmadaResponse'
+  '/pay/confirm_shipping':
+      post:
+        tags:
+          - Confirmación de boletas
+        #summary: Listado de pagos cts
+        #description: Listado de pagos cts
+        parameters:
+          - name: request
+            in: body
+            schema:
+              type: object
+              properties:
+                no_cia:
+                  description: código de compañía
+                  type: string
+                  minLength: 1
+                  example: 02
+                codigo_trab:
+                  description: estado
+                  type: string
+                  minLength: 1
+                  example: 0134051
+                dni:
+                  description: doc. identidad
+                  type: string
+                  minLength: 1
+                  example: 12345678
+                id_periodo:
+                  description: periodo en formato yyyy
+                  type: string
+                  minLength: 1
+                  example: 2019
+                id_tipo_calculo:
+                  description: tipo de cálculo
+                  type: string
+                  minLength: 1
+                  example: 0
+        responses:
+          '200':
+            description: 'Respuesta de éxito'
+            schema:
+              type: object
+              properties:
+                error:
+                  type: integer
+                  example: 0
+                message:
+                  type: string
+                  example: ok
+                data:
+                  type: string
+                  example: ok
+  '/pay/recent':
+      post:
+        tags:
+          - Pagos recientes
+        #summary: Listado de pagos cts
+        #description: Listado de pagos cts
+        parameters:
+          - name: request
+            in: body
+            schema:
+              type: object
+              properties:
+                dni:
+                  description: doc. identidad
+                  type: string
+                  minLength: 1
+                  example: 12345678
+                tipo:
+                  description: tipo
+                  type: string
+                  minLength: 1
+                  example: 0
+        responses:
+          '200':
+            description: 'Respuesta de éxito'
+            schema:
+              type: object
+              properties:
+                error:
+                  type: integer
+                  example: 0
+                message:
+                  type: string
+                  example: ok
+                data:
+                  type: array
+                  items: 
+                    $ref: '#/definitions/PagoRecienteResponse'
+  '/benefit':
+      post:
+        tags:
+          - Beneficios
+        #summary: Listado de pagos cts
+        #description: Listado de pagos cts
+        responses:
+          '200':
+            description: 'Respuesta de éxito'
+            schema:
+              type: object
+              properties:
+                error:
+                  type: integer
+                  example: 0
+                message:
+                  type: string
+                  example: ok
+                data:
+                  type: array
+                  items: 
+                    $ref: '#/definitions/BeneficioResponse'
 # An object to hold data types that can be consumed and produced by operations.
 # These data types can be primitives, arrays or models.
 definitions:
+  BoletaResponse:
+    type: object
+    properties:
+      estado_trabajador:
+        description: estado de trabajador
+        type: string
+        minLength: 1
+        example: ACTIVO
+      sec_trab_ped:
+        description: secuencia pedido
+        type: string
+        minLength: 1
+        example: 584
+      id_grupo_calculo:
+        description: grupo de cálculo
+        type: string
+        minLength: 1
+        example: 00914
+      no_cia:
+        description: código de compañia
+        type: string
+        minLength: 1
+        example: 02
+      desc_cia:
+        description: nombre de la compañia
+        type: string
+        minLength: 1
+        example: OVERALL STRATEGY S.A.C.
+      cod_cliente:
+        description: código de cliente
+        type: string
+        minLength: 1
+        example: C20503630827
+      desc_cliente:
+        description: descripción de cliente
+        type: string
+        minLength: 1
+        example: OVERALL STRATEGY S.A.C.
+      id_periodo:
+        description: código de periodo en formato yyyyMM
+        type: string
+        minLength: 1
+        example: 201905
+      mes_periodo:
+        description: mes de periodo en formato MM
+        type: string
+        minLength: 1
+        example: 08
+      anio_periodo:
+        description: año de periodo en formato yyyy
+        type: string
+        minLength: 1
+        example: 2019
+      mes_letras:
+        description: nombre del mes
+        type: string
+        minLength: 1
+        example: AGOSTO
+      boleta_detalle:
+        description: nombre del mes
+        type: array
+        items:
+          $ref: '#/definitions/BoletaDetalleResponse'
+  BoletaDetalleResponse:
+    type: object
+    properties:
+      cod_proceso:
+        description: código de proceso
+        type: string
+        minLength: 1
+        example: 190802146
+      desc_proceso:
+        description: descripción de proceso
+        type: string
+        minLength: 1
+        example: Pago de Remuneraciones del 01/08/2019 al 31/08/2019
+      id_grupo_calculo:
+        description: tipo de cálculo
+        type: string
+        minLength: 1
+        example: 00914
+      desc_tipo_calculo: 
+        description: descripción de tipo cálculo
+        type: string
+        minLength: 1
+        example: REMUNERACIONES
+      url_documento:
+        description: url de documento
+        type: string
+        minLength: 1
+        example: "https://s3.amazonaws.com/overall-files/Boletas/02/ab474f4f0592dbcae61776d481758ea34eb57bf18859d7388e216622abaa9cf3_FE.pdf"
   CtsResponse:
     type: object
     properties:
@@ -373,4 +671,108 @@ definitions:
         type: string
         minLength: 1
         example: PENDIENTE
+  NoConfirmadaResponse:
+    type: object
+    properties:
+      periodo:
+        description: periodo en formato yyyyMM
+        type: string
+        minLength: 6
+        example: 201812
+      no_cia:
+        description: código de compañía
+        type: string
+        minLength: 2
+        example: 02
+      cod_tcalculo:
+        description: grupo de cálculo
+        type: string
+        minLength: 1
+        example: 02
+      descripcion:
+        description: descripcion
+        type: string
+        minLength: 1
+        example: REMUNERACIONES
+      estado:
+        description: estado
+        type: string
+        minLength: 1
+        example: POR CONFIRMAR
+  PagoRecienteResponse:
+    type: object
+    properties:
+      fecha:
+        description: fecha
+        type: string
+        minLength: 1
+        example: 03/07/2019
+      descripcion:
+        description: descripción
+        type: string
+        minLength: 1
+        example: GRATIFICACIONES
+      monto_pagado:
+        description: monto pagado
+        type: string
+        minLength: 1
+        example: 12909.28
+  BeneficioResponse:
+    type: object
+    properties:
+      id:
+        description: id
+        type: string
+        minLength: 1
+        example: 48
+      no_cia:
+        description: código de compañía
+        type: string
+        minLength: 2
+        example: 04,03,16,05,01,22,07,02,21,17
+      nombre:
+        description: nombre de beneficio
+        type: string
+        minLength: 1
+        example: CASA ANDINA HOTEL
+      estado:
+        description: estado
+        type: string
+        minLength: 1
+        example: True
+      fecha_ini:
+        description: fecha inicial
+        type: string
+        minLength: 1
+        example: 1/01/2018 00:00:00
+      fecha_fin:
+        description: fecha final
+        type: string
+        minLength: 1
+        example: 30/06/2019 00:00:00
+      orden:
+        description: orden
+        type: string
+        minLength: 1
+        example: 1
+      imagen:
+        description: nombre de imagen
+        type: string
+        minLength: 1
+        example: 48_Casa Andina.png
+      link:
+        description: link
+        type: string
+        minLength: 1
+        example: www.casa-andina.com
+      restriccion:
+        description: restriccion
+        type: string
+        minLength: 1
+        example: Las solicitudes de reservas ...
+      url:
+        description: url
+        type: string
+        minLength: 1
+        example: ..
         
